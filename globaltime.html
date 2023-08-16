@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>全球时间换算</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        hr {
+            margin: 1em 0;
+        }
+        .time-container {
+            margin-bottom: 1em;
+        }
+        .time-container label {
+            display: inline-block;
+            width: 100px;
+        }
+        .time-container input {
+            width: 30px;
+        }
+        .time-container button {
+            margin-left: 1em;
+        }
+        .day-change-label {
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>🌍全球时间换算</h1>
+        <hr>
+        <div class="time-container" v-for="(country, index) in countries" :key="index">
+            <label>{{ country }}</label>
+            <input type="number" min="0" max="23" placeholder="小时" v-model="hours[index]">
+            <input type="number" min="0" max="59" placeholder="分钟" v-model="minutes[index]">
+            <button @click="calculate(index)">计算</button>
+            <span class="day-change-label">{{ dayChanges[index] }}</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                countries: ["中国", "欧洲", "美西", "美东", "美中", "日本", "新西兰", "澳大利亚", "泰国", "印度", "俄罗斯", "土耳其", "希腊", "英国", "巴西", "智利", "墨西哥", "沙特阿拉伯", "阿联酋", "马来西亚"],
+                timeOffsets: [8, 1, -8, -5, -6, 9, 13, 10, 7, 5.5, 3, 3, 2, 0, -3, -4, -6, 3, 4, 8],
+                hours: Array(20).fill(''),
+                minutes: Array(20).fill(''),
+                dayChanges: Array(20).fill('')
+            },
+            methods: {
+                calculate(sourceIndex) {
+                    var sourceHour = this.hours[sourceIndex];
+                    var sourceMinute = this.minutes[sourceIndex];
+
+                    if (sourceHour === "" || sourceMinute === "" || sourceHour > 23 || sourceMinute > 59) {
+                        alert("请输入正确的时间！");
+                        return;
+                    }
+
+                    var sourceTimeInUtc = Number(sourceHour) - this.timeOffsets[sourceIndex];
+
+                    for (var i = 0; i < this.countries.length; i++) {
+                        var targetTime = sourceTimeInUtc + this.timeOffsets[i];
+                        var dayChangeLabel = "";
+
+                        if (targetTime < 0) {
+                            targetTime += 24;
+                            dayChangeLabel = "昨日";
+                        }
+                        if (targetTime >= 24) {
+                            targetTime -= 24;
+                            dayChangeLabel = "次日";
+                        }
+
+                        this.hours[i] = Math.floor(targetTime);
+                        this.minutes[i] = sourceMinute;
+                        this.dayChanges[i] = dayChangeLabel;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
